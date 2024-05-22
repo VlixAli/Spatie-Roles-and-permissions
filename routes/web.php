@@ -26,31 +26,45 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+Route::middleware('auth')->controller(ProfileController::class)
+    ->name('profile.')->prefix('/profile')
+    ->group(function () {
+        Route::get('/', 'edit')->name('edit');
+        Route::patch('/', 'update')->name('update');
+        Route::delete('/', 'destroy')->name('destroy');
+    });
 
 Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('/', [IndexController::class, 'index'])->name('index');
+
     Route::resource('/roles', RoleController::class);
-    Route::post('/roles/{role}/permissions', [RoleController::class, 'givePermission'])
-        ->name('roles.permissions');
-    Route::delete('/roles/{role}/permissions/{permission}', [RoleController::class, 'revokePermission'])
-        ->name('roles.permissions.revoke');
+    Route::controller(RoleController::class)->name('roles.')
+        ->prefix('/roles/{role}/permissions')->group(function () {
+            Route::post('/', 'givePermission')->name('permissions');
+            Route::delete('/{permission}', 'revokePermission')->name('permissions.revoke');
+        });
+
     Route::resource('/permissions', PermissionController::class);
-    Route::post('/permissions/{permission}/roles', [PermissionController::class, 'assignRole'])
-        ->name('permissions.roles');
-    Route::delete('/permissions/{permission}/roles/{role}', [PermissionController::class, 'removeRole'])
-        ->name('permissions.roles.remove');
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-    Route::post('/users/{user}/roles', [UserController::class, 'assignRole'])->name('users.roles');
-    Route::delete('/users/{user}/roles/{role}', [UserController::class, 'removeRole'])->name('users.roles.remove');
-    Route::post('/users/{user}/permissions', [UserController::class, 'givePermission'])->name('users.permissions');
-    Route::delete('/users/{user}/permissions/{permission}', [UserController::class, 'revokePermission'])->name('users.permissions.revoke');
+    Route::controller(PermissionController::class)
+        ->prefix('/permissions/{permission}/roles')->name('permissions.')
+        ->group(function () {
+            Route::post('/', 'assignRole')->name('roles');
+            Route::delete('/{role}', 'removeRole')->name('roles.remove');
+        });
+
+    Route::controller(UserController::class)
+        ->prefix('/users')->name('users.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::prefix('/{user}')->group(function () {
+                Route::get('/', 'show')->name('show');
+                Route::delete('/', 'destroy')->name('destroy');
+                Route::post('/roles', 'assignRole')->name('roles');
+                Route::delete('/roles/{role}', 'removeRole')->name('roles.remove');
+                Route::post('/permissions', 'givePermission')->name('permissions');
+                Route::delete('/permissions/{permission}', 'revokePermission')->name('permissions.revoke');
+            });
+        });
 });
 
 require __DIR__ . '/auth.php';
