@@ -29,7 +29,6 @@
                                                     {{ $role->name }}
                                                 </div>
                                             </td>
-                                            <td>Edit</td>
                                             <td>
                                                 <div class="flex justify-end">
                                                     <div class="flex space-x-2">
