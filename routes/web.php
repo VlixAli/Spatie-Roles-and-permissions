@@ -67,4 +67,4 @@ Route::middleware(['auth', 'role:admin'])->name('admin.')->prefix('admin')->grou
         });
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

@@ -27,24 +27,26 @@ class UserController extends Controller
         return view('admin.users.role', [
             'user' => $user,
             'roles' => $roles,
-            'permissions' => $permissions
+            'permissions' => $permissions,
         ]);
     }
 
     public function assignRole(Request $request, User $user)
     {
-        if ($user->hasRole($request->role)){
+        if ($user->hasRole($request->role)) {
             return back()->with('message', 'Role exists.');
         }
 
         $user->assignRole($request->role);
+
         return back()->with('message', 'Role Assigned');
     }
 
     public function removeRole(User $user, Role $role)
     {
-        if ($user->hasRole($role)){
+        if ($user->hasRole($role)) {
             $user->removeRole($role);
+
             return back()->with('message', 'role removed');
         }
 
@@ -53,19 +55,22 @@ class UserController extends Controller
 
     public function givePermission(Request $request, User $user)
     {
-        if ($user->hasPermissionTo($request->permission)){
+        if ($user->hasPermissionTo($request->permission)) {
             return back()->with('message', 'Permission exists');
         }
         $user->givePermissionTo($request->permission);
+
         return back()->with('message', 'Permission added');
     }
 
     public function revokePermission(User $user, Permission $permission)
     {
-        if ($user->hasPermissionTo($permission)){
+        if ($user->hasPermissionTo($permission)) {
             $user->revokePermissionTo($permission);
+
             return back()->with('message', 'Permission revoked.');
         }
+
         return back()->with('message', 'Permission does not exist');
     }
 

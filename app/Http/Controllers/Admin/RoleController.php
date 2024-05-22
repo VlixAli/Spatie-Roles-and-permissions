@@ -13,8 +13,9 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::all();
+
         return view('admin.roles.index', [
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -33,7 +34,8 @@ class RoleController extends Controller
     public function edit(Role $role)
     {
         $permissions = Permission::all();
-        return view('admin.roles.edit',[
+
+        return view('admin.roles.edit', [
             'role' => $role,
             'permissions' => $permissions,
         ]);
@@ -55,19 +57,22 @@ class RoleController extends Controller
 
     public function givePermission(Request $request, Role $role)
     {
-        if ($role->hasPermissionTo($request->permission)){
+        if ($role->hasPermissionTo($request->permission)) {
             return back()->with('message', 'Permission exists');
         }
         $role->givePermissionTo($request->permission);
+
         return back()->with('message', 'Permission added');
     }
 
     public function revokePermission(Role $role, Permission $permission)
     {
-        if ($role->hasPermissionTo($permission)){
+        if ($role->hasPermissionTo($permission)) {
             $role->revokePermissionTo($permission);
+
             return back()->with('message', 'Permission revoked.');
         }
+
         return back()->with('message', 'Permission does not exist');
     }
 }
